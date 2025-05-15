@@ -28,10 +28,11 @@ def calculate_mzn_scores(
     mzn_scores = {conf: 0.0, other_conf: 0.0}
     for instance, instance_df in df.groupby(["model", "data_file"]):
         # Skip if all configurations have the status "UNKNOWN"
-        if instance_df["status"].map(Status.from_str).eq(Status.UNKNOWN).all():
-            print(
-                f"Skipping instance {instance} since all configurations have status UNKNOWN. "
-            )
+        if (
+            instance_df["status"].map(Status.from_str).eq(Status.UNKNOWN).all()
+            or instance_df["status"].map(Status.from_str).eq(Status.ERROR).any()
+        ):
+            # Skip if all configurations have the status "UNKNOWN" and "ERROR"
             continue
 
         # Determine the problem type based on the first non-NaN "method" attribute
